@@ -1,0 +1,123 @@
+<html>
+
+<head>
+    <title>Upload</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css" integrity="sha384-fLW2N01lMqjakBkx3l/M9EahuwpSfeNvV63J5ezn3uZzapT0u7EYsXMjQV+0En5r" crossorigin="anonymous">
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <link rel="stylesheet" href="../../static/ecoinvent_app/styles.css">
+    <script src="../../static/ecoinvent_app/js.js"></script>
+</head>
+
+<nav class="p-4 navbar navbar-dark bg-danger mb-5">
+    <h1 class='text-white'>Ecoinvent Web Tools</h1>
+    <div class="col-2 ml-auto">
+        <a class='text-white' href="/logout">Logout</a>
+    </div>
+</nav>
+
+<body>
+    <div class= "m-5">
+        <form method=POST enctype=multipart/form-data action="/xml" id="form1">
+            <div class="row">
+                <div class="col-5">
+                    {% csrf_token %}
+                    <input type=file id="media" name="xmlfile">
+                    <input type="submit">
+                    {% for message in messages %}
+                    {% if message.extra_tags == "dup_file" %}
+                    <p class="position-absolute d-block text-danger">{{ message }}</p>
+                    {% endif %}
+                    {% endfor %}
+                </div>
+                <div class="col-5 form-right">
+                    <div>
+                        <span>System Model</span>
+                        <select name="system">
+                            <option value="Cut-Off">Cut-Off</option>
+                            <option value="APOS">APOS</option>
+                            <option value="Consequential">Consequential</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </form>
+
+        <div class="progress d-none m-4" id="d-type" style="width: 300px;">
+            <div id="progressBar" class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%;">
+                0%
+            </div>
+        </div>
+
+        <form action="/filterData" method = "post">
+            {% csrf_token %}
+            <div class="m-4">
+                <span>Filter By</span>
+                <select name="filterBy">
+                    <option value="geo">Geography</option>
+                    <option value="prod">Product Name</option>
+                    <option value="act">Activity Name</option>
+                </select>
+                <input type="text" name="filterSearch" placeholder="Search...">
+                <button class="btn btn-small btn-outline-danger">Search</button>
+                {% if searchResults != "" %}
+                <a href="/resetData">Back to All</a>
+                {% endif %}
+            </div>
+        </form>
+        <h2 class="mt-3">Browse all Datasets</h2>
+        {% if searchResults == "" %}
+        <div>
+            <table class="table table-hover">
+                <tr class="font-weight-bold">
+                    <td>Activity Name</td>
+                    <td>Geography</td>
+                    <td>Product Name</td>
+                    <td>Full Data</td>
+                    <td>Delete</td>
+                </tr>
+                {% for item in list_activities %}
+                <tr>
+                    <td>{{ item.activityName }}</td>
+                    <td>{{ item.geography }}</td>
+                    <td>{{ item.productName }}</td>
+                    <td><a href="seeData/{{item.id}}" >See Full Data</a></td>
+                    {% if current_user == item.user_uploaded %}
+                    <td><a href="delete/{{ item.id }}">Remove Dataset</a></td>
+                    {% else %}
+                    <td>Must be uploading user to delete</td>
+                    {% endif %}
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+
+        {% else %}
+        <div>
+            <table class="table table-hover">
+                <tr class="font-weight-bold">
+                    <td>Activity Name</td>
+                    <td>Geography</td>
+                    <td>Product Name</td>
+                    <td>Full Data</td>
+                </tr>
+                {% for item in searchResults %}
+                <tr>
+                    <td>{{ item.activityName }}</td>
+                    <td>{{ item.geography }}</td>
+                    <td>{{ item.productName }}</td>
+                    <td><a href="seeData/{{item.id}}">See Full Data</a></td>
+                    {% if request.session.toggleData != -1 %}
+                    <td>{{ jsonData }}</td>
+                    {% endif %}
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+        {% endif %}
+    </div>  
+</body>
+
+</html>
