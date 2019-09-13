@@ -51,7 +51,6 @@ class UserManager(models.Manager):
         print(filenameCheck)
         if len(filenameCheck) > 0:
             errors['dup_file'] = 'Sorry, this file has already been uploaded'
-        print(errors['dup_file'])
         return errors
 
 
