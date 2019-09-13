@@ -5,6 +5,7 @@ To run the app:
 1. Clone the repo (or download zip)
 
 (If you have pip with virtual environment installed)
+
 2. On the project level (with apps, requirements.txt etc...) in the terminal run "virtualenv venv"
 3. run "source venv/bin/activate" to activate the virtual env
 
